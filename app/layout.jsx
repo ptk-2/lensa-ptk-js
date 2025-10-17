@@ -1,6 +1,8 @@
 // File: app/layout.jsx
+
 import { Inter } from "next/font/google";
-import "./globals.css"; // Kita akan buat file ini
+// Impor file CSS global baru kita
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,6 +14,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      {/* Ini adalah bagian terpenting: 
+        Kita terapkan font Inter, latar belakang gelap, 
+        teks putih, dan gradien futuristik ke seluruh body
+      */}
       <body 
         className={`${inter.className} bg-gray-900 text-white`}
         style={{

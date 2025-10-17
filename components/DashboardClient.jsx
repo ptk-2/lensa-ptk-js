@@ -1,7 +1,7 @@
 // File: components/DashboardClient.jsx
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react'; // Import React
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, CartesianGrid, XAxis, YAxis 
@@ -13,8 +13,10 @@ import {
   Users, UserCheck, UserPlus, GraduationCap, MapPin, Search, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 
+// Palet warna futuristik kita
 const PIE_CHART_COLORS = ["#06b6d4", "#8b5cf6", "#10b981", "#ec4899", "#f59e0b", "#3b82f6"];
 
+// Tooltip kustom dengan efek glassmorphism
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -30,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function DashboardClient({ statsData, tableData, kecamatanOptions, totalPages }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  
   const [selectedKecamatan, setSelectedKecamatan] = useState(searchParams.get('kecamatan') || 'semua');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const currentPage = useMemo(() => parseInt(searchParams.get('page') || '1'), [searchParams]);
@@ -57,7 +59,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   }, {}), [statsData]);
 
   const barChartData = useMemo(() => Object.keys(statusCounts).map(name => ({ name, Jumlah: statusCounts[name] })).sort((a, b) => b.Jumlah - a.Jumlah), [statusCounts]);
-
+  
   const pendidikanCounts = useMemo(() => statsData.reduce((acc, ptk) => {
     const edu = ptk.pendidikan || 'Tidak Terdefinisi';
     acc[edu] = (acc[edu] || 0) + 1;
@@ -69,7 +71,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   const totalPtk = statsData.length;
   const totalPns = statusCounts['PNS'] || 0;
   const totalPppk = statusCounts['PPPK'] || 0;
-
+  
   // --- Konfigurasi Tabel ---
   const columns = useMemo(
     () => [
@@ -88,7 +90,10 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   });
 
   return (
-    <div className="p-4 md:p-8">
+    // Latar belakang gelap sudah diatur di layout.jsx
+    <div className="p-4 md:p-8"> 
+      
+      {/* Header dan Filter */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
           Dashboard PTK
@@ -110,6 +115,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
         </div>
       </div>
 
+      {/* Kartu Metrik (Glassmorphism) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
          <MetricCard icon={<Users size={48} />} title="Total PTK (Filter)" value={totalPtk} color="text-fuchsia-400" />
          <MetricCard icon={<UserCheck size={48} />} title="Total PNS" value={totalPns} color="text-cyan-400" />
@@ -117,6 +123,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
          <MetricCard icon={<GraduationCap size={48} />} title="Pendidikan S1" value={pendidikanCounts['S1'] || 0} color="text-amber-400" />
       </div>
 
+      {/* Area Grafik (Glassmorphism) */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
         <div className="lg:col-span-3 p-6 rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
           <h3 className="text-xl font-semibold text-white mb-4">Distribusi Status Kepegawaian</h3>
@@ -128,7 +135,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
                 <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{fill: '#ffffff10'}}/>
-                <Legend wrapperStyle={{fontSize: "14px"}}/>
+                <Legend wrapperStyle={{fontSize: "14px", color: '#9ca3af'}}/>
                 <Bar dataKey="Jumlah" fill="url(#colorJumlah)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -140,7 +147,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             <ResponsiveContainer>
               <PieChart>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" />
+                <Legend iconType="circle" wrapperStyle={{color: '#9ca3af'}} />
                 <Pie data={pieChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} labelLine={false}>
                   {pieChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={PIE_CHART_COLORS[index % PIE_CHART_COLORS.length]} />
@@ -152,6 +159,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
         </div>
       </div>
 
+      {/* Tabel Data (Glassmorphism) */}
       <div className="p-6 rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-white">Data Detail PTK</h3>
@@ -166,7 +174,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             />
           </div>
         </div>
-
+        
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="text-sm text-gray-300 uppercase border-b border-white/20">
@@ -191,21 +199,22 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             </tbody>
           </table>
         </div>
-
-        <div className="flex items-center justify-end gap-4 mt-4 text-sm">
+        
+        {/* Paginasi */}
+        <div className="flex items-center justify-end gap-4 mt-4 text-sm text-gray-300">
           <span>Halaman {currentPage} dari {totalPages}</span>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => handlePageChange(currentPage - 1)} 
               disabled={currentPage <= 1}
-              className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50"
+              className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button 
               onClick={() => handlePageChange(currentPage + 1)} 
               disabled={currentPage >= totalPages}
-              className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50"
+              className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -216,6 +225,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   );
 }
 
+// Komponen Kartu Metrik
 function MetricCard({ icon, title, value, color }) {
   return (
     <div className={`relative flex items-center gap-6 p-6 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl`}>
