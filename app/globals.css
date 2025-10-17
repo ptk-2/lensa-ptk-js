@@ -1,0 +1,11 @@
+/* File: app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mengubah warna default radio button daisyui */
+.radio-primary {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--p) / var(--tw-border-opacity));
+  --chkbg: hsl(var(--p));
+}
