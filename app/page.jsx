@@ -49,9 +49,11 @@ export default function HomePage() {
     }
   };
 
+  // Ini adalah kode JSX untuk tampilan futuristik
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 transition-all duration-500">
       <div className="w-full max-w-2xl text-center">
+        {/* Header */}
         <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
           Lensa PTK
         </h1>
@@ -63,6 +65,7 @@ export default function HomePage() {
             Buka Dashboard →
         </Link>
 
+        {/* Form Unggah with Glassmorphism Effect */}
         <form onSubmit={handleSubmit} className="mt-8 w-full rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl">
           <div className="mb-6">
             <div className="relative mt-2 flex justify-center rounded-lg border-2 border-dashed border-gray-500/50 px-6 py-10 hover:border-cyan-400 transition-colors duration-300">
@@ -80,6 +83,7 @@ export default function HomePage() {
             </div>
           </div>
           
+          {/* Opsi Radio Button (DaisyUI) */}
           <div className="mb-6">
              <fieldset>
                 <div className="flex items-center justify-center gap-x-6">
@@ -95,6 +99,7 @@ export default function HomePage() {
             </fieldset>
           </div>
 
+          {/* Tombol Upload */}
           <button
             type="submit"
             disabled={loading || !file}
@@ -108,6 +113,7 @@ export default function HomePage() {
             {loading ? 'Memproses...' : 'Unggah dan Proses'}
           </button>
 
+          {/* Pesan Status */}
           {statusMessage && (
             <div className={`mt-4 flex items-center justify-center gap-2 text-sm ${isError ? 'text-red-400' : 'text-green-400'}`}>
               {isError ? <AlertTriangle size={16} /> : <FileCheck size={16} />}
