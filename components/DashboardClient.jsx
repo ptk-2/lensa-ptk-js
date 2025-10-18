@@ -1,16 +1,16 @@
 // File: components/DashboardClient.jsx
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // Pastikan React diimpor
 import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  BarChart, Bar, PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, CartesianGrid, XAxis, YAxis 
+import {
+  BarChart, Bar, PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, CartesianGrid, XAxis, YAxis
 } from 'recharts';
-import { 
-  useReactTable, getCoreRowModel, flexRender 
+import {
+  useReactTable, getCoreRowModel, flexRender
 } from '@tanstack/react-table';
-import { 
-  Users, UserCheck, UserPlus, GraduationCap, MapPin, Search, ChevronLeft, ChevronRight 
+import {
+  Users, UserCheck, UserPlus, GraduationCap, MapPin, Search, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 // Palet warna futuristik kita
@@ -29,21 +29,43 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+// Komponen Card Metrik
+function MetricCard({ icon, title, value, color }) {
+  return (
+    <div className={`relative flex items-center gap-6 p-6 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl`}>
+      <div className={color}>{icon}</div>
+      <div>
+        <h3 className="text-lg font-medium text-gray-300">{title}</h3>
+        <p className="text-4xl font-bold text-white mt-1">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+
 export default function DashboardClient({ statsData, tableData, kecamatanOptions, totalPages }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [selectedKecamatan, setSelectedKecamatan] = useState(searchParams.get('kecamatan') || 'semua');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const currentPage = useMemo(() => parseInt(searchParams.get('page') || '1'), [searchParams]);
 
+  // Efek untuk memperbarui URL saat filter/pencarian berubah
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('kecamatan', selectedKecamatan);
     params.set('search', searchTerm);
-    params.set('page', '1'); 
-    router.push(`/dashboard?${params.toString()}`);
+    // Reset ke halaman 1 jika filter atau search berubah, kecuali jika yang berubah hanya page
+    if (searchParams.get('kecamatan') !== selectedKecamatan || searchParams.get('search') !== searchTerm) {
+      params.set('page', '1');
+    }
+    // Hindari push jika parameter tidak berubah
+    if (params.toString() !== searchParams.toString()) {
+         router.push(`/dashboard?${params.toString()}`);
+    }
   }, [selectedKecamatan, searchTerm, router, searchParams]);
+
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -51,7 +73,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
     router.push(`/dashboard?${params.toString()}`);
   }
 
-  // --- Proses Data ---
+  // --- Proses Data (gunakan useMemo untuk efisiensi) ---
   const statusCounts = useMemo(() => statsData.reduce((acc, ptk) => {
     const status = ptk.status_kepegawaian || 'Lainnya';
     acc[status] = (acc[status] || 0) + 1;
@@ -59,7 +81,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   }, {}), [statsData]);
 
   const barChartData = useMemo(() => Object.keys(statusCounts).map(name => ({ name, Jumlah: statusCounts[name] })).sort((a, b) => b.Jumlah - a.Jumlah), [statusCounts]);
-  
+
   const pendidikanCounts = useMemo(() => statsData.reduce((acc, ptk) => {
     const edu = ptk.pendidikan || 'Tidak Terdefinisi';
     acc[edu] = (acc[edu] || 0) + 1;
@@ -71,7 +93,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   const totalPtk = statsData.length;
   const totalPns = statusCounts['PNS'] || 0;
   const totalPppk = statusCounts['PPPK'] || 0;
-  
+
   // --- Konfigurasi Tabel ---
   const columns = useMemo(
     () => [
@@ -90,18 +112,19 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   });
 
   return (
-    // Latar belakang gelap sudah diatur di layout.jsx
-    <div className="p-4 md:p-8"> 
-      
+    // Div utama dengan padding untuk area konten
+    <div className="p-4 md:p-8">
+
       {/* Header dan Filter */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
           Dashboard PTK
         </h1>
         <div className="flex items-center gap-4">
+          {/* Dropdown Kecamatan */}
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <select 
+            <select
               value={selectedKecamatan}
               onChange={(e) => setSelectedKecamatan(e.target.value)}
               className="pl-10 pr-4 py-2 text-white rounded-lg border border-white/20 bg-white/5 backdrop-blur-xl appearance-none focus:outline-none focus:ring-2 focus:ring-cyan-400"
@@ -115,7 +138,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
         </div>
       </div>
 
-      {/* Kartu Metrik (Glassmorphism) */}
+      {/* Kartu Metrik */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
          <MetricCard icon={<Users size={48} />} title="Total PTK (Filter)" value={totalPtk} color="text-fuchsia-400" />
          <MetricCard icon={<UserCheck size={48} />} title="Total PNS" value={totalPns} color="text-cyan-400" />
@@ -123,8 +146,9 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
          <MetricCard icon={<GraduationCap size={48} />} title="Pendidikan S1" value={pendidikanCounts['S1'] || 0} color="text-amber-400" />
       </div>
 
-      {/* Area Grafik (Glassmorphism) */}
+      {/* Area Grafik */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+        {/* Grafik Batang */}
         <div className="lg:col-span-3 p-6 rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
           <h3 className="text-xl font-semibold text-white mb-4">Distribusi Status Kepegawaian</h3>
           <div style={{ width: '100%', height: 400 }}>
@@ -141,6 +165,7 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             </ResponsiveContainer>
           </div>
         </div>
+        {/* Grafik Lingkaran */}
         <div className="lg:col-span-2 p-6 rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
           <h3 className="text-xl font-semibold text-white mb-4">Distribusi Pendidikan</h3>
           <div style={{ width: '100%', height: 400 }}>
@@ -159,13 +184,14 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
         </div>
       </div>
 
-      {/* Tabel Data (Glassmorphism) */}
+      {/* Tabel Data */}
       <div className="p-6 rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-semibold text-white">Data Detail PTK</h3>
+          {/* Kolom Pencarian */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input 
+            <input
               type="text"
               placeholder="Cari Nama/NIP..."
               value={searchTerm}
@@ -174,7 +200,8 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             />
           </div>
         </div>
-        
+
+        {/* Tabel */}
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="text-sm text-gray-300 uppercase border-b border-white/20">
@@ -199,20 +226,20 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
             </tbody>
           </table>
         </div>
-        
+
         {/* Paginasi */}
         <div className="flex items-center justify-end gap-4 mt-4 text-sm text-gray-300">
           <span>Halaman {currentPage} dari {totalPages}</span>
           <div className="flex items-center gap-2">
-            <button 
-              onClick={() => handlePageChange(currentPage - 1)} 
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage <= 1}
               className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <button 
-              onClick={() => handlePageChange(currentPage + 1)} 
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
               className="p-2 rounded-md bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white"
             >
@@ -225,15 +252,5 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
   );
 }
 
-// Komponen Kartu Metrik
-function MetricCard({ icon, title, value, color }) {
-  return (
-    <div className={`relative flex items-center gap-6 p-6 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl`}>
-      <div className={color}>{icon}</div>
-      <div>
-        <h3 className="text-lg font-medium text-gray-300">{title}</h3>
-        <p className="text-4xl font-bold text-white mt-1">{value}</p>
-      </div>
-    </div>
-  )
-}
+// Komponen MetricCard tetap sama
+// ... (Kode MetricCard sudah ada di atas)
