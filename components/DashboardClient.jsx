@@ -29,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// Komponen Card Metrik
+// Komponen Card Metrik (didefinisikan di luar agar lebih rapi)
 function MetricCard({ icon, title, value, color }) {
   return (
     <div className={`relative flex items-center gap-6 p-6 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl`}>
@@ -138,8 +138,8 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
         </div>
       </div>
 
-      {/* Kartu Metrik */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Kartu Metrik - Diperbarui agar lebih horizontal */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
          <MetricCard icon={<Users size={48} />} title="Total PTK (Filter)" value={totalPtk} color="text-fuchsia-400" />
          <MetricCard icon={<UserCheck size={48} />} title="Total PNS" value={totalPns} color="text-cyan-400" />
          <MetricCard icon={<UserPlus size={48} />} title="Total PPPK" value={totalPppk} color="text-green-400" />
@@ -251,6 +251,3 @@ export default function DashboardClient({ statsData, tableData, kecamatanOptions
     </div>
   );
 }
-
-// Komponen MetricCard tetap sama
-// ... (Kode MetricCard sudah ada di atas)
